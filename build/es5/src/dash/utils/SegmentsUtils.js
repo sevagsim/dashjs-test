@@ -40,9 +40,7 @@ formatTagPos = url.indexOf(formatTag,startPos + tokenLen);if(formatTagPos > star
 // (d, i , o, u, x, and X) for completeness
 switch(specifier){ // treat all int types as uint,
 // hence deliberate fallthrough
-case 'd':case 'i':case 'u':paddedValue = zeroPadToLength(value.toString(),width);break;case 'x':paddedValue = zeroPadToLength(value.toString(16),width);break;case 'X':paddedValue = zeroPadToLength(value.toString(16),width).toUpperCase();break;case 'o':paddedValue = zeroPadToLength(value.toString(8),width);break;default: //TODO: commented out logging to supress jshint warning -- `log` is undefined here
-//log('Unsupported/invalid IEEE 1003.1 format identifier string in URL');
-return url;}}else {paddedValue = value;}url = url.substring(0,startPos) + paddedValue + url.substring(endPos + 1);}}function getIndexBasedSegment(timelineConverter,isDynamic,representation,index){var seg=undefined,duration=undefined,presentationStartTime=undefined,presentationEndTime=undefined;duration = representation.segmentDuration; /*
+case 'd':case 'i':case 'u':paddedValue = zeroPadToLength(value.toString(),width);break;case 'x':paddedValue = zeroPadToLength(value.toString(16),width);break;case 'X':paddedValue = zeroPadToLength(value.toString(16),width).toUpperCase();break;case 'o':paddedValue = zeroPadToLength(value.toString(8),width);break;default:return url;}}else {paddedValue = value;}url = url.substring(0,startPos) + paddedValue + url.substring(endPos + 1);}}function getIndexBasedSegment(timelineConverter,isDynamic,representation,index){var seg=undefined,duration=undefined,presentationStartTime=undefined,presentationEndTime=undefined;duration = representation.segmentDuration; /*
      * From spec - If neither @duration attribute nor SegmentTimeline element is present, then the Representation
      * shall contain exactly one Media Segment. The MPD start time is 0 and the MPD duration is obtained
      * in the same way as for the last Media Segment in the Representation.
