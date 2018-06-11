@@ -63,9 +63,8 @@
          * Triggered when a fragment download is abandoned due to detection of slow download base on the ABR abandon rule..
          * @event MediaPlayerEvents#FRAGMENT_LOADING_ABANDONED
          */this.FRAGMENT_LOADING_ABANDONED = 'fragmentLoadingAbandoned'; /**
-         * Triggered when {@link module:Debug} logger methods are called.
+         * Triggered when {@link module:Debug} log method is called.
          * @event MediaPlayerEvents#LOG
-         * @deprecated
          */this.LOG = 'log'; //TODO refactor with internal event
 /**
          * Triggered when the manifest load is complete

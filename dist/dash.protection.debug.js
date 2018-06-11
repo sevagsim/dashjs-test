@@ -504,6 +504,7 @@ var APIS_ProtectionModel_3Feb2014 = [
 }];
 
 function Protection() {
+
     var instance = undefined;
     var context = this.context;
 
@@ -516,10 +517,11 @@ function Protection() {
      *
      */
     function createProtectionSystem(config) {
+
         var controller = null;
 
         var protectionKeyController = (0, _controllersProtectionKeyController2['default'])(context).getInstance();
-        protectionKeyController.setConfig({ debug: config.debug, BASE64: config.BASE64 });
+        protectionKeyController.setConfig({ log: config.log, BASE64: config.BASE64 });
         protectionKeyController.initialize();
 
         var protectionModel = getProtectionModel(config);
@@ -530,7 +532,7 @@ function Protection() {
                 protectionModel: protectionModel,
                 protectionKeyController: protectionKeyController,
                 eventBus: config.eventBus,
-                debug: config.debug,
+                log: config.log,
                 events: config.events,
                 BASE64: config.BASE64,
                 constants: config.constants
@@ -541,28 +543,32 @@ function Protection() {
     }
 
     function getProtectionModel(config) {
-        var debug = config.debug;
-        var logger = debug.getLogger(instance);
+
+        var log = config.log;
         var eventBus = config.eventBus;
         var errHandler = config.errHandler;
         var videoElement = config.videoModel ? config.videoModel.getElement() : null;
 
         if ((!videoElement || videoElement.onencrypted !== undefined) && (!videoElement || videoElement.mediaKeys !== undefined)) {
-            logger.info('EME detected on this user agent! (ProtectionModel_21Jan2015)');
-            return (0, _modelsProtectionModel_21Jan20152['default'])(context).create({ debug: debug, eventBus: eventBus, events: config.events });
+            log('EME detected on this user agent! (ProtectionModel_21Jan2015)');
+            return (0, _modelsProtectionModel_21Jan20152['default'])(context).create({ log: log, eventBus: eventBus, events: config.events });
         } else if (getAPI(videoElement, APIS_ProtectionModel_3Feb2014)) {
-            logger.info('EME detected on this user agent! (ProtectionModel_3Feb2014)');
-            return (0, _modelsProtectionModel_3Feb20142['default'])(context).create({ debug: debug, eventBus: eventBus, events: config.events, api: getAPI(videoElement, APIS_ProtectionModel_3Feb2014) });
+
+            log('EME detected on this user agent! (ProtectionModel_3Feb2014)');
+            return (0, _modelsProtectionModel_3Feb20142['default'])(context).create({ log: log, eventBus: eventBus, events: config.events, api: getAPI(videoElement, APIS_ProtectionModel_3Feb2014) });
         } else if (getAPI(videoElement, APIS_ProtectionModel_01b)) {
-            logger.info('EME detected on this user agent! (ProtectionModel_01b)');
-            return (0, _modelsProtectionModel_01b2['default'])(context).create({ debug: debug, eventBus: eventBus, errHandler: errHandler, events: config.events, api: getAPI(videoElement, APIS_ProtectionModel_01b) });
+
+            log('EME detected on this user agent! (ProtectionModel_01b)');
+            return (0, _modelsProtectionModel_01b2['default'])(context).create({ log: log, eventBus: eventBus, errHandler: errHandler, events: config.events, api: getAPI(videoElement, APIS_ProtectionModel_01b) });
         } else {
-            logger.warn('No supported version of EME detected on this user agent! - Attempts to play encrypted content will fail!');
+
+            log('No supported version of EME detected on this user agent! - Attempts to play encrypted content will fail!');
             return null;
         }
     }
 
     function getAPI(videoElement, apis) {
+
         for (var i = 0; i < apis.length; i++) {
             var api = apis[i];
             // detect if api is supported by browser
@@ -873,12 +879,11 @@ function ProtectionController(config) {
     var protectionModel = config.protectionModel;
     var eventBus = config.eventBus;
     var events = config.events;
-    var debug = config.debug;
+    var log = config.log;
     var BASE64 = config.BASE64;
     var constants = config.constants;
 
     var instance = undefined,
-        logger = undefined,
         pendingNeedKeyData = undefined,
         mediaInfoArr = undefined,
         protDataSet = undefined,
@@ -887,7 +892,6 @@ function ProtectionController(config) {
         keySystem = undefined;
 
     function setup() {
-        logger = debug.getLogger(instance);
         pendingNeedKeyData = [];
         mediaInfoArr = [];
         sessionType = 'temporary';
@@ -976,7 +980,7 @@ function ProtectionController(config) {
             var currentInitData = protectionModel.getAllInitData();
             for (var i = 0; i < currentInitData.length; i++) {
                 if (protectionKeyController.initDataEquals(initDataForKS, currentInitData[i])) {
-                    logger.warn('DRM: Ignoring initData because we have already seen it!');
+                    log('DRM: Ignoring initData because we have already seen it!');
                     return;
                 }
             }
@@ -1198,7 +1202,7 @@ function ProtectionController(config) {
                                     eventBus.trigger(events.KEY_SYSTEM_SELECTED, { error: 'DRM: KeySystem Access Denied! -- ' + event.error });
                                 }
                             } else {
-                                logger.info('DRM: KeySystem Access Granted');
+                                log('DRM: KeySystem Access Granted');
                                 eventBus.trigger(events.KEY_SYSTEM_SELECTED, { data: event.data });
                                 if (supportedKS[ksIdx].sessionId) {
                                     // Load MediaKeySession with sessionId
@@ -1241,7 +1245,7 @@ function ProtectionController(config) {
                         }
                     } else {
                         keySystemAccess = event.data;
-                        logger.info('DRM: KeySystem Access Granted (' + keySystemAccess.keySystem.systemString + ')!  Selecting key system...');
+                        log('DRM: KeySystem Access Granted (' + keySystemAccess.keySystem.systemString + ')!  Selecting key system...');
                         protectionModel.selectKeySystem(keySystemAccess);
                     }
                 };
@@ -1303,14 +1307,14 @@ function ProtectionController(config) {
         if (e.error) {
             eventBus.trigger(events.KEY_STATUSES_CHANGED, { data: null, error: 'DRM: KeyStatusChange error! -- ' + e.error });
         } else {
-            logger.debug('DRM: key status = ' + e.status);
+            log('DRM: key status = ' + e.status);
         }
     }
 
     function onKeyMessage(e) {
-        logger.debug('DRM: onKeyMessage');
+        log('DRM: onKeyMessage');
         if (e.error) {
-            logger.error(e.error);
+            log(e.error);
             return;
         }
 
@@ -1333,7 +1337,7 @@ function ProtectionController(config) {
 
         // Message not destined for license server
         if (!licenseServerData) {
-            logger.debug('DRM: License server request not required for this message (type = ' + e.data.messageType + ').  Session ID = ' + sessionToken.getSessionID());
+            log('DRM: License server request not required for this message (type = ' + e.data.messageType + ').  Session ID = ' + sessionToken.getSessionID());
             sendLicenseRequestCompleteEvent(eventData);
             return;
         }
@@ -1342,7 +1346,7 @@ function ProtectionController(config) {
         if (protectionKeyController.isClearKey(keySystem)) {
             var clearkeys = protectionKeyController.processClearKeyLicenseRequest(keySystem, protData, message);
             if (clearkeys) {
-                logger.debug('DRM: ClearKey license request handled by application!');
+                log('DRM: ClearKey license request handled by application!');
                 sendLicenseRequestCompleteEvent(eventData);
                 protectionModel.updateKeySession(sessionToken, clearkeys);
                 return;
@@ -1431,10 +1435,10 @@ function ProtectionController(config) {
     }
 
     function onNeedKey(event) {
-        logger.debug('DRM: onNeedKey');
+        log('DRM: onNeedKey');
         // Ignore non-cenc initData
         if (event.key.initDataType !== 'cenc') {
-            logger.warn('DRM:  Only \'cenc\' initData is supported!  Ignoring initData of type: ' + event.key.initDataType);
+            log('DRM:  Only \'cenc\' initData is supported!  Ignoring initData of type: ' + event.key.initDataType);
             return;
         }
 
@@ -1454,18 +1458,18 @@ function ProtectionController(config) {
                 var currentInitData = protectionModel.getAllInitData();
                 for (var i = 0; i < currentInitData.length; i++) {
                     if (protectionKeyController.initDataEquals(initDataForKS, currentInitData[i])) {
-                        logger.warn('DRM: Ignoring initData because we have already seen it!');
+                        log('DRM: Ignoring initData because we have already seen it!');
                         return;
                     }
                 }
             }
         }
 
-        logger.debug('DRM: initData:', String.fromCharCode.apply(null, new Uint8Array(abInitData)));
+        log('DRM: initData:', String.fromCharCode.apply(null, new Uint8Array(abInitData)));
 
         var supportedKS = protectionKeyController.getSupportedKeySystems(abInitData, protDataSet);
         if (supportedKS.length === 0) {
-            logger.debug('DRM: Received needkey event with initData, but we don\'t support any of the key systems!');
+            log('DRM: Received needkey event with initData, but we don\'t support any of the key systems!');
             return;
         }
 
@@ -1589,8 +1593,7 @@ function ProtectionKeyController() {
     var context = this.context;
 
     var instance = undefined,
-        debug = undefined,
-        logger = undefined,
+        log = undefined,
         keySystems = undefined,
         BASE64 = undefined,
         clearkeyKeySystem = undefined,
@@ -1599,9 +1602,8 @@ function ProtectionKeyController() {
     function setConfig(config) {
         if (!config) return;
 
-        if (config.debug) {
-            debug = config.debug;
-            logger = debug.getLogger(instance);
+        if (config.log) {
+            log = config.log;
         }
 
         if (config.BASE64) {
@@ -1628,7 +1630,7 @@ function ProtectionKeyController() {
         clearkeyKeySystem = keySystem;
 
         // W3C ClearKey
-        keySystem = (0, _drmKeySystemW3CClearKey2['default'])(context).getInstance({ BASE64: BASE64, debug: debug });
+        keySystem = (0, _drmKeySystemW3CClearKey2['default'])(context).getInstance({ BASE64: BASE64, log: log });
         keySystems.push(keySystem);
         clearkeyW3CKeySystem = keySystem;
     }
@@ -1846,7 +1848,7 @@ function ProtectionKeyController() {
         try {
             return clearkeyKeySystem.getClearKeysFromProtectionData(protData, message);
         } catch (error) {
-            logger.error('Failed to retrieve clearkeys from ProtectionData');
+            log('Failed to retrieve clearkeys from ProtectionData');
             return null;
         }
     }
@@ -2415,7 +2417,7 @@ var schemeIdURI = 'urn:uuid:' + uuid;
 function KeySystemW3CClearKey(config) {
     var instance = undefined;
     var BASE64 = config.BASE64;
-    var debug = config.debug;
+    var log = config.log;
     /**
      * Returns desired clearkeys (as specified in the CDM message) from protection data
      *
@@ -2444,7 +2446,7 @@ function KeySystemW3CClearKey(config) {
             }
             clearkeySet = new _voClearKeyKeySet2['default'](keyPairs);
 
-            debug.warn('Warning: ClearKey schemeIdURI is using W3C Common PSSH systemID (1077efec-c0b2-4d02-ace3-3c1e52e2fb4b) in Content Protection. See DASH-IF IOP v4.1 section 7.6.2.4');
+            log('Warning: ClearKey schemeIdURI is using W3C Common PSSH systemID (1077efec-c0b2-4d02-ace3-3c1e52e2fb4b) in Content Protection. See DASH-IF IOP v4.1 section 7.6.2.4');
         }
         return clearkeySet;
     }
@@ -2695,12 +2697,11 @@ function ProtectionModel_01b(config) {
     var context = this.context;
     var eventBus = config.eventBus; //Need to pass in here so we can use same instance since this is optional module
     var events = config.events;
-    var debug = config.debug;
+    var log = config.log;
     var api = config.api;
     var errHandler = config.errHandler;
 
     var instance = undefined,
-        logger = undefined,
         videoElement = undefined,
         keySystem = undefined,
         protectionKeyController = undefined,
@@ -2729,7 +2730,6 @@ function ProtectionModel_01b(config) {
     eventHandler = undefined;
 
     function setup() {
-        logger = debug.getLogger(instance);
         videoElement = null;
         keySystem = null;
         pendingSessions = [];
@@ -2941,7 +2941,7 @@ function ProtectionModel_01b(config) {
                             // TODO: Build error string based on key error
                             eventBus.trigger(events.KEY_ERROR, { data: new _voKeyError2['default'](sessionToken, msg) });
                         } else {
-                            logger.error('No session token found for key error');
+                            log('No session token found for key error');
                         }
                         break;
 
@@ -2952,10 +2952,10 @@ function ProtectionModel_01b(config) {
                         }
 
                         if (sessionToken) {
-                            logger.debug('DRM: Key added.');
+                            log('DRM: Key added.');
                             eventBus.trigger(events.KEY_ADDED, { data: sessionToken }); //TODO not sure anything is using sessionToken? why there?
                         } else {
-                                logger.debug('No session token found for key added');
+                                log('No session token found for key added');
                             }
                         break;
 
@@ -2997,7 +2997,7 @@ function ProtectionModel_01b(config) {
                             sessionToken.keyMessage = message;
                             eventBus.trigger(events.INTERNAL_KEY_MESSAGE, { data: new _voKeyMessage2['default'](sessionToken, message, event.defaultURL) });
                         } else {
-                            logger.warn('No session token found for key message');
+                            log('No session token found for key message');
                         }
                         break;
                 }
@@ -3137,10 +3137,9 @@ function ProtectionModel_21Jan2015(config) {
     var context = this.context;
     var eventBus = config.eventBus; //Need to pass in here so we can use same instance since this is optional module
     var events = config.events;
-    var debug = config.debug;
+    var log = config.log;
 
     var instance = undefined,
-        logger = undefined,
         keySystem = undefined,
         videoElement = undefined,
         mediaKeys = undefined,
@@ -3149,7 +3148,6 @@ function ProtectionModel_21Jan2015(config) {
         protectionKeyController = undefined;
 
     function setup() {
-        logger = debug.getLogger(instance);
         keySystem = null;
         videoElement = null;
         mediaKeys = null;
@@ -3259,7 +3257,7 @@ function ProtectionModel_21Jan2015(config) {
             throw new Error('Can not set server certificate until you have selected a key system');
         }
         mediaKeys.setServerCertificate(serverCertificate).then(function () {
-            logger.info('DRM: License server certificate successfully updated.');
+            log('DRM: License server certificate successfully updated.');
             eventBus.trigger(events.SERVER_CERTIFICATE_UPDATED);
         })['catch'](function (error) {
             eventBus.trigger(events.SERVER_CERTIFICATE_UPDATED, { error: 'Error updating server certificate -- ' + error.name });
@@ -3279,7 +3277,7 @@ function ProtectionModel_21Jan2015(config) {
         // keyids type is used for clearkey when keys are provided directly in the protection data and then request to a license server is not needed
         var dataType = ks.systemString === _constantsProtectionConstants2['default'].CLEARKEY_KEYSTEM_STRING && protData && protData.clearkeys ? 'keyids' : 'cenc';
         session.generateRequest(dataType, initData).then(function () {
-            logger.debug('DRM: Session created.  SessionID = ' + sessionToken.getSessionID());
+            log('DRM: Session created.  SessionID = ' + sessionToken.getSessionID());
             eventBus.trigger(events.KEY_SESSION_CREATED, { data: sessionToken });
         })['catch'](function (error) {
             // TODO: Better error string
@@ -3308,7 +3306,7 @@ function ProtectionModel_21Jan2015(config) {
         // Check if session Id is not already loaded or loading
         for (var i = 0; i < sessions.length; i++) {
             if (sessionID === sessions[i].sessionId) {
-                logger.warn('DRM: Ignoring session ID because we have already seen it!');
+                log('DRM: Ignoring session ID because we have already seen it!');
                 return;
             }
         }
@@ -3319,7 +3317,7 @@ function ProtectionModel_21Jan2015(config) {
         // Load persisted session data into our newly created session object
         session.load(sessionID).then(function (success) {
             if (success) {
-                logger.debug('DRM: Session loaded.  SessionID = ' + sessionToken.getSessionID());
+                log('DRM: Session loaded.  SessionID = ' + sessionToken.getSessionID());
                 eventBus.trigger(events.KEY_SESSION_CREATED, { data: sessionToken });
             } else {
                 removeSession(sessionToken);
@@ -3335,7 +3333,7 @@ function ProtectionModel_21Jan2015(config) {
         var session = sessionToken.session;
 
         session.remove().then(function () {
-            logger.debug('DRM: Session removed.  SessionID = ' + sessionToken.getSessionID());
+            log('DRM: Session removed.  SessionID = ' + sessionToken.getSessionID());
             eventBus.trigger(events.KEY_SESSION_REMOVED, { data: sessionToken.getSessionID() });
         }, function (error) {
             eventBus.trigger(events.KEY_SESSION_REMOVED, { data: null, error: 'Error removing session (' + sessionToken.getSessionID() + '). ' + error.name });
@@ -3493,7 +3491,7 @@ function ProtectionModel_21Jan2015(config) {
         // Register callback for session closed Promise
         session.closed.then(function () {
             removeSession(token);
-            logger.debug('DRM: Session closed.  SessionID = ' + token.getSessionID());
+            log('DRM: Session closed.  SessionID = ' + token.getSessionID());
             eventBus.trigger(events.KEY_SESSION_CLOSED, { data: token.getSessionID() });
         });
 
@@ -3607,11 +3605,10 @@ function ProtectionModel_3Feb2014(config) {
     var context = this.context;
     var eventBus = config.eventBus; //Need to pass in here so we can use same instance since this is optional module
     var events = config.events;
-    var debug = config.debug;
+    var log = config.log;
     var api = config.api;
 
     var instance = undefined,
-        logger = undefined,
         videoElement = undefined,
         keySystem = undefined,
         mediaKeys = undefined,
@@ -3621,7 +3618,6 @@ function ProtectionModel_3Feb2014(config) {
         protectionKeyController = undefined;
 
     function setup() {
-        logger = debug.getLogger(instance);
         videoElement = null;
         keySystem = null;
         mediaKeys = null;
@@ -3747,6 +3743,7 @@ function ProtectionModel_3Feb2014(config) {
     }
 
     function createKeySession(initData, protData, sessionType, cdmData) {
+
         if (!keySystem || !mediaKeys || !keySystemAccess) {
             throw new Error('Can not create sessions until you have selected a key system');
         }
@@ -3775,11 +3772,12 @@ function ProtectionModel_3Feb2014(config) {
 
         // Add to our session list
         sessions.push(sessionToken);
-        logger.debug('DRM: Session created.  SessionID = ' + sessionToken.getSessionID());
+        log('DRM: Session created.  SessionID = ' + sessionToken.getSessionID());
         eventBus.trigger(events.KEY_SESSION_CREATED, { data: sessionToken });
     }
 
     function updateKeySession(sessionToken, message) {
+
         var session = sessionToken.session;
 
         if (!protectionKeyController.isClearKey(keySystem)) {
@@ -3798,6 +3796,7 @@ function ProtectionModel_3Feb2014(config) {
      * @param {Object} sessionToken - the session token
      */
     function closeKeySession(sessionToken) {
+
         var session = sessionToken.session;
 
         // Remove event listeners
@@ -3880,6 +3879,7 @@ function ProtectionModel_3Feb2014(config) {
             // same events
             handleEvent: function handleEvent(event) {
                 switch (event.type) {
+
                     case api.error:
                         var errorStr = 'KeyError'; // TODO: Make better string from event
                         eventBus.trigger(events.KEY_ERROR, { data: new _voKeyError2['default'](this, errorStr) });
@@ -3889,12 +3889,12 @@ function ProtectionModel_3Feb2014(config) {
                         eventBus.trigger(events.INTERNAL_KEY_MESSAGE, { data: new _voKeyMessage2['default'](this, message, event.destinationURL) });
                         break;
                     case api.ready:
-                        logger.debug('DRM: Key added.');
+                        log('DRM: Key added.');
                         eventBus.trigger(events.KEY_ADDED);
                         break;
 
                     case api.close:
-                        logger.debug('DRM: Session closed.  SessionID = ' + this.getSessionID());
+                        log('DRM: Session closed.  SessionID = ' + this.getSessionID());
                         eventBus.trigger(events.KEY_SESSION_CLOSED, { data: this.getSessionID() });
                         break;
                 }

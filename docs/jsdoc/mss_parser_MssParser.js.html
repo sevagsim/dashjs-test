@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Dash JS Source: mss/parser/MssParser.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.spacelab.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">Dash JS</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-DashMetrics.html">DashMetrics</a></li><li><a href="module-Debug.html">Debug</a></li><li><a href="module-FactoryMaker.html">FactoryMaker</a></li><li><a href="module-FetchLoader.html">FetchLoader</a></li><li><a href="module-HTTPLoader.html">HTTPLoader</a></li><li><a href="module-MediaPlayer.html">MediaPlayer</a></li><li><a href="module-MssFragmentMoovProcessor.html">MssFragmentMoovProcessor</a></li><li><a href="module-MssParser.html">MssParser</a></li><li><a href="module-ObjectUtils.html">ObjectUtils</a></li><li><a href="module-ProtectionController.html">ProtectionController</a></li><li><a href="module-ProtectionKeyController.html">ProtectionKeyController</a></li><li><a href="module-URLUtils.html">URLUtils</a></li><li><a href="module-XHRLoader.html">XHRLoader</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="BaseMatcher.html">BaseMatcher</a></li><li><a href="BufferLevel.html">BufferLevel</a></li><li><a href="BufferState.html">BufferState</a></li><li><a href="CommonEncryption.html">CommonEncryption</a></li><li><a href="CommonProperty.html">CommonProperty</a></li><li><a href="DroppedFrames.html">DroppedFrames</a></li><li><a href="DVRInfo.html">DVRInfo</a></li><li><a href="HTTPRequest.html">HTTPRequest</a></li><li><a href="HTTPRequestTrace.html">HTTPRequestTrace</a></li><li><a href="LiveEdgeFinder.html">LiveEdgeFinder</a></li><li><a href="ManifestUpdate.html">ManifestUpdate</a></li><li><a href="ManifestUpdateRepresentationInfo.html">ManifestUpdateRepresentationInfo</a></li><li><a href="ManifestUpdateStreamInfo.html">ManifestUpdateStreamInfo</a></li><li><a href="MediaPlayerEvents.html">MediaPlayerEvents</a></li><li><a href="PlayList.html">PlayList</a></li><li><a href="PlayListTrace.html">PlayListTrace</a></li><li><a href="PlayReady.html">PlayReady</a></li><li><a href="PreBufferSink.html">PreBufferSink</a></li><li><a href="ProtectionEvents.html">ProtectionEvents</a></li><li><a href="RepresentationSwitch.html">RepresentationSwitch</a></li><li><a href="RequestsQueue.html">RequestsQueue</a></li><li><a href="Round10.html">Round10</a></li><li><a href="SchedulingInfo.html">SchedulingInfo</a></li><li><a href="SourceBufferSink.html">SourceBufferSink</a></li><li><a href="TCPConnection.html">TCPConnection</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="MediaPlayerEvents.html#event:BUFFER_EMPTY">MediaPlayerEvents#event:BUFFER_EMPTY</a></li><li><a href="MediaPlayerEvents.html#event:BUFFER_LEVEL_STATE_CHANGED">MediaPlayerEvents#event:BUFFER_LEVEL_STATE_CHANGED</a></li><li><a href="MediaPlayerEvents.html#event:BUFFER_LOADED">MediaPlayerEvents#event:BUFFER_LOADED</a></li><li><a href="MediaPlayerEvents.html#event:CAN_PLAY">MediaPlayerEvents#event:CAN_PLAY</a></li><li><a href="MediaPlayerEvents.html#event:ERROR">MediaPlayerEvents#event:ERROR</a></li><li><a href="MediaPlayerEvents.html#event:FRAGMENT_LOADING_ABANDONED">MediaPlayerEvents#event:FRAGMENT_LOADING_ABANDONED</a></li><li><a href="MediaPlayerEvents.html#event:FRAGMENT_LOADING_COMPLETED">MediaPlayerEvents#event:FRAGMENT_LOADING_COMPLETED</a></li><li><a href="MediaPlayerEvents.html#event:FRAGMENT_LOADING_PROGRESS">MediaPlayerEvents#event:FRAGMENT_LOADING_PROGRESS</a></li><li><a href="MediaPlayerEvents.html#event:FRAGMENT_LOADING_STARTED">MediaPlayerEvents#event:FRAGMENT_LOADING_STARTED</a></li><li><a href="MediaPlayerEvents.html#event:LOG">MediaPlayerEvents#event:LOG</a></li><li><a href="MediaPlayerEvents.html#event:MANIFEST_LOADED">MediaPlayerEvents#event:MANIFEST_LOADED</a></li><li><a href="MediaPlayerEvents.html#event:MANIFEST_VALIDITY_CHANGED">MediaPlayerEvents#event:MANIFEST_VALIDITY_CHANGED</a></li><li><a href="MediaPlayerEvents.html#event:METRIC_ADDED">MediaPlayerEvents#event:METRIC_ADDED</a></li><li><a href="MediaPlayerEvents.html#event:METRIC_CHANGED">MediaPlayerEvents#event:METRIC_CHANGED</a></li><li><a href="MediaPlayerEvents.html#event:METRIC_UPDATED">MediaPlayerEvents#event:METRIC_UPDATED</a></li><li><a href="MediaPlayerEvents.html#event:METRICS_CHANGED">MediaPlayerEvents#event:METRICS_CHANGED</a></li><li><a href="MediaPlayerEvents.html#event:PERIOD_SWITCH_COMPLETED">MediaPlayerEvents#event:PERIOD_SWITCH_COMPLETED</a></li><li><a href="MediaPlayerEvents.html#event:PERIOD_SWITCH_STARTED">MediaPlayerEvents#event:PERIOD_SWITCH_STARTED</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_ENDED">MediaPlayerEvents#event:PLAYBACK_ENDED</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_ERROR">MediaPlayerEvents#event:PLAYBACK_ERROR</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_METADATA_LOADED">MediaPlayerEvents#event:PLAYBACK_METADATA_LOADED</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_NOT_ALLOWED">MediaPlayerEvents#event:PLAYBACK_NOT_ALLOWED</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_PAUSED">MediaPlayerEvents#event:PLAYBACK_PAUSED</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_PLAYING">MediaPlayerEvents#event:PLAYBACK_PLAYING</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_PROGRESS">MediaPlayerEvents#event:PLAYBACK_PROGRESS</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_RATE_CHANGED">MediaPlayerEvents#event:PLAYBACK_RATE_CHANGED</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_SEEK_ASKED">MediaPlayerEvents#event:PLAYBACK_SEEK_ASKED</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_SEEKED">MediaPlayerEvents#event:PLAYBACK_SEEKED</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_SEEKING">MediaPlayerEvents#event:PLAYBACK_SEEKING</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_STARTED">MediaPlayerEvents#event:PLAYBACK_STARTED</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_TIME_UPDATED">MediaPlayerEvents#event:PLAYBACK_TIME_UPDATED</a></li><li><a href="MediaPlayerEvents.html#event:PLAYBACK_WAITING">MediaPlayerEvents#event:PLAYBACK_WAITING</a></li><li><a href="MediaPlayerEvents.html#event:QUALITY_CHANGE_RENDERED">MediaPlayerEvents#event:QUALITY_CHANGE_RENDERED</a></li><li><a href="MediaPlayerEvents.html#event:QUALITY_CHANGE_REQUESTED">MediaPlayerEvents#event:QUALITY_CHANGE_REQUESTED</a></li><li><a href="MediaPlayerEvents.html#event:SOURCE_INITIALIZED">MediaPlayerEvents#event:SOURCE_INITIALIZED</a></li><li><a href="MediaPlayerEvents.html#event:STREAM_INITIALIZED">MediaPlayerEvents#event:STREAM_INITIALIZED</a></li><li><a href="MediaPlayerEvents.html#event:STREAM_TEARDOWN_COMPLETE">MediaPlayerEvents#event:STREAM_TEARDOWN_COMPLETE</a></li><li><a href="MediaPlayerEvents.html#event:TEXT_TRACK_ADDED">MediaPlayerEvents#event:TEXT_TRACK_ADDED</a></li><li><a href="MediaPlayerEvents.html#event:TEXT_TRACKS_ADDED">MediaPlayerEvents#event:TEXT_TRACKS_ADDED</a></li><li><a href="MediaPlayerEvents.html#event:TRACK_CHANGE_RENDERED">MediaPlayerEvents#event:TRACK_CHANGE_RENDERED</a></li><li><a href="MediaPlayerEvents.html#event:TTML_PARSED">MediaPlayerEvents#event:TTML_PARSED</a></li><li><a href="ProtectionEvents.html#event:KEY_ADDED">ProtectionEvents#event:KEY_ADDED</a></li><li><a href="ProtectionEvents.html#event:KEY_ERROR">ProtectionEvents#event:KEY_ERROR</a></li><li><a href="ProtectionEvents.html#event:KEY_MESSAGE">ProtectionEvents#event:KEY_MESSAGE</a></li><li><a href="ProtectionEvents.html#event:KEY_SESSION_CLOSED">ProtectionEvents#event:KEY_SESSION_CLOSED</a></li><li><a href="ProtectionEvents.html#event:KEY_SESSION_CREATED">ProtectionEvents#event:KEY_SESSION_CREATED</a></li><li><a href="ProtectionEvents.html#event:KEY_SESSION_REMOVED">ProtectionEvents#event:KEY_SESSION_REMOVED</a></li><li><a href="ProtectionEvents.html#event:KEY_STATUSES_CHANGED">ProtectionEvents#event:KEY_STATUSES_CHANGED</a></li><li><a href="ProtectionEvents.html#event:KEY_SYSTEM_SELECTED">ProtectionEvents#event:KEY_SYSTEM_SELECTED</a></li><li><a href="ProtectionEvents.html#event:LICENSE_REQUEST_COMPLETE">ProtectionEvents#event:LICENSE_REQUEST_COMPLETE</a></li><li><a href="ProtectionEvents.html#event:PROTECTION_CREATED">ProtectionEvents#event:PROTECTION_CREATED</a></li><li><a href="ProtectionEvents.html#event:PROTECTION_DESTROYED">ProtectionEvents#event:PROTECTION_DESTROYED</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="interfaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Interfaces<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="FragmentSink.html">FragmentSink</a></li><li><a href="KeySystem.html">KeySystem</a></li><li><a href="ProtectionModel.html">ProtectionModel</a></li><li><a href="SessionToken.html">SessionToken</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html#_decimalAdjust">_decimalAdjust</a></li><li><a href="global.html#EBMLParser">EBMLParser</a></li><li><a href="global.html#GenericMetricHandler">GenericMetricHandler</a></li><li><a href="global.html#HandlerHelpers">HandlerHelpers</a></li><li><a href="global.html#MetricSerialiser">MetricSerialiser</a></li><li><a href="global.html#RNG">RNG</a></li><li><a href="global.html#round10">round10</a></li><li><a href="global.html#URIFragmentModel">URIFragmentModel</a></li><li><a href="global.html#Widevine">Widevine</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+        
+            <div class="col-sm-3 col-md-3">
+                <form class="navbar-form" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: mss/parser/MssParser.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">/**
+ * The copyright in this software is being made available under the BSD License,
+ * included below. This software may be subject to other third party and contributor
+ * rights, including patent rights, and no such rights are granted under this license.
+ *
+ * Copyright (c) 2013, Dash Industry Forum.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *  * Redistributions of source code must retain the above copyright notice, this
+ *  list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *  this list of conditions and the following disclaimer in the documentation and/or
+ *  other materials provided with the distribution.
+ *  * Neither the name of Dash Industry Forum nor the names of its
+ *  contributors may be used to endorse or promote products derived from this software
+ *  without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY
+ *  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ *  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ *  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ *  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ *  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * @module MssParser
+ * @param {Object} config object
+ */
+function MssParser(config) {
+    config = config || {};
+    const BASE64 = config.BASE64;
+    const log = config.log;
+    const constants = config.constants;
+
+    const DEFAULT_TIME_SCALE = 10000000.0;
+    const SUPPORTED_CODECS = ['AAC', 'AACL', 'AVC1', 'H264', 'TTML', 'DFXP'];
+    // MPEG-DASH Role and accessibility mapping according to ETSI TS 103 285 v1.1.1 (section 7.1.2)
+    const ROLE = {
+        'SUBT': 'alternate',
+        'CAPT': 'alternate', // 'CAPT' is commonly equivalent to 'SUBT'
+        'DESC': 'main'
+    };
+    const ACCESSIBILITY = {
+        'DESC': '2'
+    };
+    const samplingFrequencyIndex = {
+        96000: 0x0,
+        88200: 0x1,
+        64000: 0x2,
+        48000: 0x3,
+        44100: 0x4,
+        32000: 0x5,
+        24000: 0x6,
+        22050: 0x7,
+        16000: 0x8,
+        12000: 0x9,
+        11025: 0xA,
+        8000: 0xB,
+        7350: 0xC
+    };
+    const mimeTypeMap = {
+        'video': 'video/mp4',
+        'audio': 'audio/mp4',
+        'text': 'application/mp4'
+    };
+
+    let instance,
+        mediaPlayerModel;
+
+
+    function setup() {
+        mediaPlayerModel = config.mediaPlayerModel;
+    }
+
+    function mapPeriod(smoothStreamingMedia, timescale) {
+        let period = {};
+        let streams,
+            adaptation;
+
+        // For each StreamIndex node, create an AdaptationSet element
+        period.AdaptationSet_asArray = [];
+        streams = smoothStreamingMedia.getElementsByTagName('StreamIndex');
+        for (let i = 0; i &lt; streams.length; i++) {
+            adaptation = mapAdaptationSet(streams[i], timescale);
+            if (adaptation !== null) {
+                period.AdaptationSet_asArray.push(adaptation);
+            }
+        }
+
+        if (period.AdaptationSet_asArray.length > 0) {
+            period.AdaptationSet = (period.AdaptationSet_asArray.length > 1) ? period.AdaptationSet_asArray : period.AdaptationSet_asArray[0];
+        }
+
+        return period;
+    }
+
+    function mapAdaptationSet(streamIndex, timescale) {
+
+        let adaptationSet = {};
+        let representations = [];
+        let segmentTemplate = {};
+        let qualityLevels,
+            representation,
+            segments,
+            i;
+
+        adaptationSet.id = streamIndex.getAttribute('Name') ? streamIndex.getAttribute('Name') : streamIndex.getAttribute('Type');
+        adaptationSet.contentType = streamIndex.getAttribute('Type');
+        adaptationSet.lang = streamIndex.getAttribute('Language') || 'und';
+        adaptationSet.mimeType = mimeTypeMap[adaptationSet.contentType];
+        adaptationSet.subType = streamIndex.getAttribute('Subtype');
+        adaptationSet.maxWidth = streamIndex.getAttribute('MaxWidth');
+        adaptationSet.maxHeight = streamIndex.getAttribute('MaxHeight');
+
+        // Map subTypes to MPEG-DASH AdaptationSet role and accessibility (see ETSI TS 103 285 v1.1.1, section 7.1.2)
+        if (adaptationSet.subType) {
+            if (ROLE[adaptationSet.subType]) {
+                let role = {
+                    schemeIdUri: 'urn:mpeg:dash:role:2011',
+                    value: ROLE[adaptationSet.subType]
+                };
+                adaptationSet.Role = role;
+                adaptationSet.Role_asArray = [role];
+            }
+            if (ACCESSIBILITY[adaptationSet.subType]) {
+                let accessibility = {
+                    schemeIdUri: 'urn:tva:metadata:cs:AudioPurposeCS:2007',
+                    value: ACCESSIBILITY[adaptationSet.subType]
+                };
+                adaptationSet.Accessibility = accessibility;
+                adaptationSet.Accessibility_asArray = [accessibility];
+            }
+        }
+
+        // Create a SegmentTemplate with a SegmentTimeline
+        segmentTemplate = mapSegmentTemplate(streamIndex, timescale);
+
+        qualityLevels = streamIndex.getElementsByTagName('QualityLevel');
+        // For each QualityLevel node, create a Representation element
+        for (i = 0; i &lt; qualityLevels.length; i++) {
+            // Propagate BaseURL and mimeType
+            qualityLevels[i].BaseURL = adaptationSet.BaseURL;
+            qualityLevels[i].mimeType = adaptationSet.mimeType;
+
+            // Set quality level id
+            qualityLevels[i].Id = adaptationSet.id + '_' + qualityLevels[i].getAttribute('Index');
+
+            // Map Representation to QualityLevel
+            representation = mapRepresentation(qualityLevels[i], streamIndex);
+
+            if (representation !== null) {
+                // Copy SegmentTemplate into Representation
+                representation.SegmentTemplate = segmentTemplate;
+
+                representations.push(representation);
+            }
+        }
+
+        if (representations.length === 0) {
+            return null;
+        }
+
+        adaptationSet.Representation = (representations.length > 1) ? representations : representations[0];
+        adaptationSet.Representation_asArray = representations;
+
+        // Set SegmentTemplate
+        adaptationSet.SegmentTemplate = segmentTemplate;
+
+        segments = segmentTemplate.SegmentTimeline.S_asArray;
+
+        return adaptationSet;
+    }
+
+    function mapRepresentation(qualityLevel, streamIndex) {
+
+        let representation = {};
+        let fourCCValue = null;
+        let type = streamIndex.getAttribute('Type');
+
+        representation.id = qualityLevel.Id;
+        representation.bandwidth = parseInt(qualityLevel.getAttribute('Bitrate'), 10);
+        representation.mimeType = qualityLevel.mimeType;
+        representation.width = parseInt(qualityLevel.getAttribute('MaxWidth'), 10);
+        representation.height = parseInt(qualityLevel.getAttribute('MaxHeight'), 10);
+
+        fourCCValue = qualityLevel.getAttribute('FourCC');
+
+        // If FourCC not defined at QualityLevel level, then get it from StreamIndex level
+        if (fourCCValue === null || fourCCValue === '') {
+            fourCCValue = streamIndex.getAttribute('FourCC');
+        }
+
+        // If still not defined (optionnal for audio stream, see https://msdn.microsoft.com/en-us/library/ff728116%28v=vs.95%29.aspx),
+        // then we consider the stream is an audio AAC stream
+        if (fourCCValue === null || fourCCValue === '') {
+            if (type === 'audio') {
+                fourCCValue = 'AAC';
+            } else if (type === 'video') {
+                log('[MssParser] FourCC is not defined whereas it is required for a QualityLevel element for a StreamIndex of type "video"');
+                return null;
+            }
+        }
+
+        // Check if codec is supported
+        if (SUPPORTED_CODECS.indexOf(fourCCValue.toUpperCase()) === -1) {
+            // Do not send warning
+            //this.errHandler.sendWarning(MediaPlayer.dependencies.ErrorHandler.prototype.MEDIA_ERR_CODEC_UNSUPPORTED, 'Codec not supported', {codec: fourCCValue});
+            log('[MssParser] Codec not supported: ' + fourCCValue);
+            return null;
+        }
+
+        // Get codecs value according to FourCC field
+        if (fourCCValue === 'H264' || fourCCValue === 'AVC1') {
+            representation.codecs = getH264Codec(qualityLevel);
+        } else if (fourCCValue.indexOf('AAC') >= 0) {
+            representation.codecs = getAACCodec(qualityLevel, fourCCValue);
+            representation.audioSamplingRate = parseInt(qualityLevel.getAttribute('SamplingRate'), 10);
+            representation.audioChannels = parseInt(qualityLevel.getAttribute('Channels'), 10);
+        } else if (fourCCValue.indexOf('TTML') || fourCCValue.indexOf('DFXP')) {
+            representation.codecs = constants.STPP;
+        }
+
+        representation.codecPrivateData = '' + qualityLevel.getAttribute('CodecPrivateData');
+        representation.BaseURL = qualityLevel.BaseURL;
+
+        return representation;
+    }
+
+    function getH264Codec(qualityLevel) {
+        let codecPrivateData = qualityLevel.getAttribute('CodecPrivateData').toString();
+        let nalHeader,
+            avcoti;
+
+
+        // Extract from the CodecPrivateData field the hexadecimal representation of the following
+        // three bytes in the sequence parameter set NAL unit.
+        // => Find the SPS nal header
+        nalHeader = /00000001[0-9]7/.exec(codecPrivateData);
+        // => Find the 6 characters after the SPS nalHeader (if it exists)
+        avcoti = nalHeader &amp;&amp; nalHeader[0] ? (codecPrivateData.substr(codecPrivateData.indexOf(nalHeader[0]) + 10, 6)) : undefined;
+
+        return 'avc1.' + avcoti;
+    }
+
+    function getAACCodec(qualityLevel, fourCCValue) {
+        let objectType = 0;
+        let codecPrivateData = qualityLevel.getAttribute('CodecPrivateData').toString();
+        let samplingRate = parseInt(qualityLevel.getAttribute('SamplingRate'), 10);
+        let codecPrivateDataHex,
+            arr16,
+            indexFreq,
+            extensionSamplingFrequencyIndex;
+
+        //chrome problem, in implicit AAC HE definition, so when AACH is detected in FourCC
+        //set objectType to 5 => strange, it should be 2
+        if (fourCCValue === 'AACH') {
+            objectType = 0x05;
+        }
+        //if codecPrivateData is empty, build it :
+        if (codecPrivateData === undefined || codecPrivateData === '') {
+            objectType = 0x02; //AAC Main Low Complexity => object Type = 2
+            indexFreq = samplingFrequencyIndex[samplingRate];
+            if (fourCCValue === 'AACH') {
+                // 4 bytes :     XXXXX         XXXX          XXXX             XXXX                  XXXXX      XXX   XXXXXXX
+                //           ' ObjectType' 'Freq Index' 'Channels value'   'Extens Sampl Freq'  'ObjectType'  'GAS' 'alignment = 0'
+                objectType = 0x05; // High Efficiency AAC Profile = object Type = 5 SBR
+                codecPrivateData = new Uint8Array(4);
+                extensionSamplingFrequencyIndex = samplingFrequencyIndex[samplingRate * 2]; // in HE AAC Extension Sampling frequence
+                // equals to SamplingRate*2
+                //Freq Index is present for 3 bits in the first byte, last bit is in the second
+                codecPrivateData[0] = (objectType &lt;&lt; 3) | (indexFreq >> 1);
+                codecPrivateData[1] = (indexFreq &lt;&lt; 7) | (qualityLevel.Channels &lt;&lt; 3) | (extensionSamplingFrequencyIndex >> 1);
+                codecPrivateData[2] = (extensionSamplingFrequencyIndex &lt;&lt; 7) | (0x02 &lt;&lt; 2); // origin object type equals to 2 => AAC Main Low Complexity
+                codecPrivateData[3] = 0x0; //alignment bits
+
+                arr16 = new Uint16Array(2);
+                arr16[0] = (codecPrivateData[0] &lt;&lt; 8) + codecPrivateData[1];
+                arr16[1] = (codecPrivateData[2] &lt;&lt; 8) + codecPrivateData[3];
+                //convert decimal to hex value
+                codecPrivateDataHex = arr16[0].toString(16);
+                codecPrivateDataHex = arr16[0].toString(16) + arr16[1].toString(16);
+
+            } else {
+                // 2 bytes :     XXXXX         XXXX          XXXX              XXX
+                //           ' ObjectType' 'Freq Index' 'Channels value'   'GAS = 000'
+                codecPrivateData = new Uint8Array(2);
+                //Freq Index is present for 3 bits in the first byte, last bit is in the second
+                codecPrivateData[0] = (objectType &lt;&lt; 3) | (indexFreq >> 1);
+                codecPrivateData[1] = (indexFreq &lt;&lt; 7) | (parseInt(qualityLevel.getAttribute('Channels'), 10) &lt;&lt; 3);
+                // put the 2 bytes in an 16 bits array
+                arr16 = new Uint16Array(1);
+                arr16[0] = (codecPrivateData[0] &lt;&lt; 8) + codecPrivateData[1];
+                //convert decimal to hex value
+                codecPrivateDataHex = arr16[0].toString(16);
+            }
+
+            codecPrivateData = '' + codecPrivateDataHex;
+            codecPrivateData = codecPrivateData.toUpperCase();
+            qualityLevel.setAttribute('CodecPrivateData', codecPrivateData);
+        } else if (objectType === 0) {
+            objectType = (parseInt(codecPrivateData.substr(0, 2), 16) &amp; 0xF8) >> 3;
+        }
+
+        return 'mp4a.40.' + objectType;
+    }
+
+    function mapSegmentTemplate(streamIndex, timescale) {
+
+        let segmentTemplate = {};
+        let mediaUrl,
+            streamIndexTimeScale;
+
+        mediaUrl = streamIndex.getAttribute('Url').replace('{bitrate}', '$Bandwidth$');
+        mediaUrl = mediaUrl.replace('{start time}', '$Time$');
+
+        streamIndexTimeScale = streamIndex.getAttribute('TimeScale');
+        streamIndexTimeScale = streamIndexTimeScale ? parseFloat(streamIndexTimeScale) : timescale;
+
+        segmentTemplate.media = mediaUrl;
+        segmentTemplate.timescale = streamIndexTimeScale;
+
+        segmentTemplate.SegmentTimeline = mapSegmentTimeline(streamIndex, segmentTemplate.timescale);
+
+        return segmentTemplate;
+    }
+
+    function mapSegmentTimeline(streamIndex, timescale) {
+
+        let segmentTimeline = {};
+        let chunks = streamIndex.getElementsByTagName('c');
+        let segments = [];
+        let segment;
+        let prevSegment;
+        let tManifest;
+        let i,j,r;
+        let duration = 0;
+
+        for (i = 0; i &lt; chunks.length; i++) {
+            segment = {};
+
+            // Get time 't' attribute value
+            tManifest = chunks[i].getAttribute('t');
+
+            // => segment.tManifest = original timestamp value as a string (for constructing the fragment request url, see DashHandler)
+            // => segment.t = number value of timestamp (maybe rounded value, but only for 0.1 microsecond)
+            segment.tManifest = parseFloat(tManifest);
+            segment.t = parseFloat(tManifest);
+
+            // Get duration 'd' attribute value
+            segment.d = parseFloat(chunks[i].getAttribute('d'));
+
+            // If 't' not defined for first segment then t=0
+            if ((i === 0) &amp;&amp; !segment.t) {
+                segment.t = 0;
+            }
+
+            if (i > 0) {
+                prevSegment = segments[segments.length - 1];
+                // Update previous segment duration if not defined
+                if (!prevSegment.d) {
+                    if (prevSegment.tManifest) {
+                        prevSegment.d = parseFloat(tManifest) - parseFloat(prevSegment.tManifest);
+                    } else {
+                        prevSegment.d = segment.t - prevSegment.t;
+                    }
+                }
+                // Set segment absolute timestamp if not set in manifest
+                if (!segment.t) {
+                    if (prevSegment.tManifest) {
+                        segment.tManifest = parseFloat(prevSegment.tManifest) + prevSegment.d;
+                        segment.t = parseFloat(segment.tManifest);
+                    } else {
+                        segment.t = prevSegment.t + prevSegment.d;
+                    }
+                }
+            }
+
+            duration += segment.d;
+
+            // Create new segment
+            segments.push(segment);
+
+            // Support for 'r' attribute (i.e. "repeat" as in MPEG-DASH)
+            r = parseFloat(chunks[i].getAttribute('r'));
+            if (r) {
+
+                for (j = 0; j &lt; (r - 1); j++) {
+                    prevSegment = segments[segments.length - 1];
+                    segment = {};
+                    segment.t = prevSegment.t + prevSegment.d;
+                    segment.d = prevSegment.d;
+                    if (prevSegment.tManifest) {
+                        segment.tManifest  = parseFloat(prevSegment.tManifest) + prevSegment.d;
+                    }
+                    duration += segment.d;
+                    segments.push(segment);
+                }
+            }
+        }
+
+        segmentTimeline.S = segments;
+        segmentTimeline.S_asArray = segments;
+        segmentTimeline.duration = duration / timescale;
+
+        return segmentTimeline;
+    }
+
+    function getKIDFromProtectionHeader(protectionHeader) {
+        let prHeader,
+            wrmHeader,
+            xmlReader,
+            KID;
+
+        // Get PlayReady header as byte array (base64 decoded)
+        prHeader = BASE64.decodeArray(protectionHeader.firstChild.data);
+
+        // Get Right Management header (WRMHEADER) from PlayReady header
+        wrmHeader = getWRMHeaderFromPRHeader(prHeader);
+
+        // Convert from multi-byte to unicode
+        wrmHeader = new Uint16Array(wrmHeader.buffer);
+
+        // Convert to string
+        wrmHeader = String.fromCharCode.apply(null, wrmHeader);
+
+        // Parse &lt;WRMHeader> to get KID field value
+        xmlReader = (new DOMParser()).parseFromString(wrmHeader, 'application/xml');
+        KID = xmlReader.querySelector('KID').textContent;
+
+        // Get KID (base64 decoded) as byte array
+        KID = BASE64.decodeArray(KID);
+
+        // Convert UUID from little-endian to big-endian
+        convertUuidEndianness(KID);
+
+        return KID;
+    }
+
+    function getWRMHeaderFromPRHeader(prHeader) {
+        let length,
+            recordCount,
+            recordType,
+            recordLength,
+            recordValue;
+        let i = 0;
+
+        // Parse PlayReady header
+
+        // Length - 32 bits (LE format)
+        length = (prHeader[i + 3] &lt;&lt; 24) + (prHeader[i + 2] &lt;&lt; 16) + (prHeader[i + 1] &lt;&lt; 8) + prHeader[i];
+        i += 4;
+
+        // Record count - 16 bits (LE format)
+        recordCount = (prHeader[i + 1] &lt;&lt; 8) + prHeader[i];
+        i += 2;
+
+        // Parse records
+        while (i &lt; prHeader.length) {
+            // Record type - 16 bits (LE format)
+            recordType = (prHeader[i + 1] &lt;&lt; 8) + prHeader[i];
+            i += 2;
+
+            // Check if Rights Management header (record type = 0x01)
+            if (recordType === 0x01) {
+
+                // Record length - 16 bits (LE format)
+                recordLength = (prHeader[i + 1] &lt;&lt; 8) + prHeader[i];
+                i += 2;
+
+                // Record value => contains &lt;WRMHEADER>
+                recordValue = new Uint8Array(recordLength);
+                recordValue.set(prHeader.subarray(i, i + recordLength));
+                return recordValue;
+            }
+        }
+
+        return null;
+    }
+
+    function convertUuidEndianness(uuid) {
+        swapBytes(uuid, 0, 3);
+        swapBytes(uuid, 1, 2);
+        swapBytes(uuid, 4, 5);
+        swapBytes(uuid, 6, 7);
+    }
+
+    function swapBytes(bytes, pos1, pos2) {
+        let temp = bytes[pos1];
+        bytes[pos1] = bytes[pos2];
+        bytes[pos2] = temp;
+    }
+
+
+    function createPRContentProtection(protectionHeader) {
+        let pro = {
+            __text: protectionHeader.firstChild.data,
+            __prefix: 'mspr'
+        };
+        return {
+            schemeIdUri: 'urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95',
+            value: 'com.microsoft.playready',
+            pro: pro,
+            pro_asArray: pro
+        };
+    }
+
+    function createWidevineContentProtection(protectionHeader, KID) {
+        // Create Widevine CENC header (Protocol Buffer) with KID value
+        let wvCencHeader = new Uint8Array(2 + KID.length);
+        wvCencHeader[0] = 0x12;
+        wvCencHeader[1] = 0x10;
+        wvCencHeader.set(KID, 2);
+
+        // Create a pssh box
+        let length = 12 /* box length, type, version and flags */ + 16 /* SystemID */ + 4 /* data length */ + wvCencHeader.length;
+        let pssh = new Uint8Array(length);
+        let i = 0;
+
+        // Set box length value
+        pssh[i++] = (length &amp; 0xFF000000) >> 24;
+        pssh[i++] = (length &amp; 0x00FF0000) >> 16;
+        pssh[i++] = (length &amp; 0x0000FF00) >> 8;
+        pssh[i++] = (length &amp; 0x000000FF);
+
+        // Set type ('pssh'), version (0) and flags (0)
+        pssh.set([0x70, 0x73, 0x73, 0x68, 0x00, 0x00, 0x00, 0x00], i);
+        i += 8;
+
+        // Set SystemID ('edef8ba9-79d6-4ace-a3c8-27dcd51d21ed')
+        pssh.set([0xed, 0xef, 0x8b, 0xa9,  0x79, 0xd6, 0x4a, 0xce, 0xa3, 0xc8, 0x27, 0xdc, 0xd5, 0x1d, 0x21, 0xed], i);
+        i += 16;
+
+        // Set data length value
+        pssh[i++] = (wvCencHeader.length &amp; 0xFF000000) >> 24;
+        pssh[i++] = (wvCencHeader.length &amp; 0x00FF0000) >> 16;
+        pssh[i++] = (wvCencHeader.length &amp; 0x0000FF00) >> 8;
+        pssh[i++] = (wvCencHeader.length &amp; 0x000000FF);
+
+        // Copy Widevine CENC header
+        pssh.set(wvCencHeader, i);
+
+        // Convert to BASE64 string
+        pssh = String.fromCharCode.apply(null, pssh);
+        pssh = BASE64.encodeASCII(pssh);
+
+        return {
+            schemeIdUri: 'urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed',
+            value: 'com.widevine.alpha',
+            pssh: {
+                __text: pssh
+            }
+        };
+    }
+
+    function processManifest(xmlDoc, manifestLoadedTime) {
+        let manifest = {};
+        let contentProtections = [];
+        let smoothStreamingMedia = xmlDoc.getElementsByTagName('SmoothStreamingMedia')[0];
+        let protection = xmlDoc.getElementsByTagName('Protection')[0];
+        let protectionHeader = null;
+        let period,
+            adaptations,
+            contentProtection,
+            KID,
+            timestampOffset,
+            startTime,
+            segments,
+            timescale,
+            i, j;
+
+        // Set manifest node properties
+        manifest.protocol = 'MSS';
+        manifest.profiles = 'urn:mpeg:dash:profile:isoff-live:2011';
+        manifest.type = smoothStreamingMedia.getAttribute('IsLive') === 'TRUE' ? 'dynamic' : 'static';
+        timescale =  smoothStreamingMedia.getAttribute('TimeScale');
+        manifest.timescale = timescale ? parseFloat(timescale) : DEFAULT_TIME_SCALE;
+        manifest.timeShiftBufferDepth = parseFloat(smoothStreamingMedia.getAttribute('DVRWindowLength')) / manifest.timescale;
+        manifest.mediaPresentationDuration = (parseFloat(smoothStreamingMedia.getAttribute('Duration')) === 0) ? Infinity : parseFloat(smoothStreamingMedia.getAttribute('Duration')) / manifest.timescale;
+        manifest.minBufferTime = mediaPlayerModel.getStableBufferTime();
+        manifest.ttmlTimeIsRelative = true;
+
+        // In case of live streams, set availabilityStartTime property according to DVRWindowLength
+        if (manifest.type === 'dynamic') {
+            manifest.availabilityStartTime = new Date(manifestLoadedTime.getTime() - (manifest.timeShiftBufferDepth * 1000));
+            manifest.refreshManifestOnSwitchTrack = true;
+            manifest.doNotUpdateDVRWindowOnBufferUpdated = true; // done by Mss fragment processor
+            manifest.ignorePostponeTimePeriod = true; // in Mss, manifest is never updated
+        }
+
+        // Map period node to manifest root node
+        manifest.Period = mapPeriod(smoothStreamingMedia, manifest.timescale);
+        manifest.Period_asArray = [manifest.Period];
+
+        // Initialize period start time
+        period = manifest.Period;
+        period.start = 0;
+
+        // ContentProtection node
+        if (protection !== undefined) {
+            protectionHeader = xmlDoc.getElementsByTagName('ProtectionHeader')[0];
+
+            // Some packagers put newlines into the ProtectionHeader base64 string, which is not good
+            // because this cannot be correctly parsed. Let's just filter out any newlines found in there.
+            protectionHeader.firstChild.data = protectionHeader.firstChild.data.replace(/\n|\r/g, '');
+
+            // Get KID (in CENC format) from protection header
+            KID = getKIDFromProtectionHeader(protectionHeader);
+
+            // Create ContentProtection for PlayReady
+            contentProtection = createPRContentProtection(protectionHeader);
+            contentProtection['cenc:default_KID'] = KID;
+            contentProtections.push(contentProtection);
+
+            // Create ContentProtection for Widevine (as a CENC protection)
+            contentProtection = createWidevineContentProtection(protectionHeader, KID);
+            contentProtection['cenc:default_KID'] = KID;
+            contentProtections.push(contentProtection);
+
+            manifest.ContentProtection = contentProtections;
+            manifest.ContentProtection_asArray = contentProtections;
+        }
+
+        adaptations = period.AdaptationSet_asArray;
+
+        for (i = 0; i &lt; adaptations.length; i += 1) {
+            adaptations[i].SegmentTemplate.initialization = '$Bandwidth$';
+            // Propagate content protection information into each adaptation
+            if (manifest.ContentProtection !== undefined) {
+                adaptations[i].ContentProtection = manifest.ContentProtection;
+                adaptations[i].ContentProtection_asArray = manifest.ContentProtection_asArray;
+            }
+
+            if (manifest.type === 'dynamic') {
+                // Match timeShiftBufferDepth to video segment timeline duration
+                if (manifest.timeShiftBufferDepth > 0 &amp;&amp;
+                    adaptations[i].contentType === 'video' &amp;&amp;
+                    manifest.timeShiftBufferDepth > adaptations[i].SegmentTemplate.SegmentTimeline.duration) {
+                    manifest.timeShiftBufferDepth = adaptations[i].SegmentTemplate.SegmentTimeline.duration;
+                }
+            }
+        }
+
+        if (manifest.timeShiftBufferDepth &lt; manifest.minBufferTime) {
+            manifest.minBufferTime = manifest.timeShiftBufferDepth;
+        }
+
+        // Delete Content Protection under root manifest node
+        delete manifest.ContentProtection;
+        delete manifest.ContentProtection_asArray;
+
+        // In case of VOD streams, check if start time is greater than 0
+        // Then determine timestamp offset according to higher audio/video start time
+        // (use case = live stream delinearization)
+        if (manifest.type === 'static') {
+            for (i = 0; i &lt; adaptations.length; i++) {
+                if (adaptations[i].contentType === 'audio' || adaptations[i].contentType === 'video') {
+                    segments = adaptations[i].SegmentTemplate.SegmentTimeline.S_asArray;
+                    startTime = segments[0].t / adaptations[i].SegmentTemplate.timescale;
+                    if (timestampOffset === undefined) {
+                        timestampOffset = startTime;
+                    }
+                    timestampOffset = Math.min(timestampOffset, startTime);
+                    // Correct content duration according to minimum adaptation's segments duration
+                    // in order to force &lt;video> element sending 'ended' event
+                    manifest.mediaPresentationDuration = Math.min(manifest.mediaPresentationDuration, adaptations[i].SegmentTemplate.SegmentTimeline.duration);
+                }
+            }
+
+            // Patch segment templates timestamps and determine period start time (since audio/video should not be aligned to 0)
+            if (timestampOffset > 0) {
+                for (i = 0; i &lt; adaptations.length; i++) {
+                    segments = adaptations[i].SegmentTemplate.SegmentTimeline.S_asArray;
+                    for (j = 0; j &lt; segments.length; j++) {
+                        if (!segments[j].tManifest) {
+                            segments[j].tManifest = segments[j].t;
+                        }
+                        segments[j].t -= (timestampOffset * adaptations[i].SegmentTemplate.timescale);
+                    }
+                    if (adaptations[i].contentType === 'audio' || adaptations[i].contentType === 'video') {
+                        period.start = Math.max(segments[0].t, period.start);
+                        adaptations[i].SegmentTemplate.presentationTimeOffset = period.start;
+                    }
+                }
+                period.start /= manifest.timescale;
+            }
+        }
+
+        manifest.mediaPresentationDuration = Math.floor(manifest.mediaPresentationDuration * 1000) / 1000;
+        period.duration = manifest.mediaPresentationDuration;
+
+        return manifest;
+    }
+
+    function parseDOM(data) {
+
+        let xmlDoc = null;
+
+        if (window.DOMParser) {
+            let parser = new window.DOMParser();
+
+            xmlDoc = parser.parseFromString(data, 'text/xml');
+            if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
+                throw new Error('parsing the manifest failed');
+            }
+        }
+
+        return xmlDoc;
+    }
+
+    function getMatchers() {
+        return null;
+    }
+
+    function getIron() {
+        return null;
+    }
+
+    function internalParse(data) {
+        let xmlDoc = null;
+        let manifest = null;
+
+        const startTime = window.performance.now();
+
+        // Parse the MSS XML manifest
+        xmlDoc = parseDOM(data);
+
+        const xmlParseTime = window.performance.now();
+
+        if (xmlDoc === null) {
+            return null;
+        }
+
+        // Convert MSS manifest into DASH manifest
+        manifest = processManifest(xmlDoc, new Date());
+
+        const mss2dashTime = window.performance.now();
+
+        log('Parsing complete: (xmlParsing: ' + (xmlParseTime - startTime).toPrecision(3) + 'ms, mss2dash: ' + (mss2dashTime - xmlParseTime).toPrecision(3) + 'ms, total: ' + ((mss2dashTime - startTime) / 1000).toPrecision(3) + 's)');
+
+        return manifest;
+    }
+
+    instance = {
+        parse: internalParse,
+        getMatchers: getMatchers,
+        getIron: getIron
+    };
+
+    setup();
+
+    return instance;
+}
+
+MssParser.__dashjs_factory_name = 'MssParser';
+export default dashjs.FactoryMaker.getClassFactory(MssParser); /* jshint ignore:line */
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+
+    <div class="modal fade" id="searchResults">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Search results</h4>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div>
+
+
+<footer>
+
+
+	<span class="copyright">
+	<h3>Dash.js <a href="http://gruntjs.com/"><img src="https://cdn.gruntjs.com/builtwith.png" alt="Built with Grunt"></a></h3>
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
+	
+		on Mon Jun 11th 2018
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+
+    <script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre, pre.prettyprint.source" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			return $( heading ).attr( "id" ) || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            SearcherDisplay.init();
+        });
+    </script>
+
+
+</body>
+</html>

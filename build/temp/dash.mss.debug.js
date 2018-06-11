@@ -191,7 +191,6 @@ function MssFragmentInfoController(config) {
     var context = this.context;
 
     var instance = undefined;
-    var logger = undefined;
     var fragmentModel = undefined;
     var indexHandler = undefined;
     var started = undefined;
@@ -208,12 +207,11 @@ function MssFragmentInfoController(config) {
     var metricsModel = config.metricsModel;
     var playbackController = config.playbackController;
     var ISOBoxer = config.ISOBoxer;
-    var debug = config.debug;
+    var log = config.log;
+
     var controllerType = 'MssFragmentInfoController';
 
-    function setup() {
-        logger = debug.getLogger(instance);
-    }
+    function setup() {}
 
     function initialize() {
         started = false;
@@ -251,6 +249,7 @@ function MssFragmentInfoController(config) {
     }
 
     function onFragmentRequest(request) {
+
         // Check if current request signals end of stream
         if (request !== null && request.action === request.ACTION_COMPLETE) {
             doStop();
@@ -267,30 +266,30 @@ function MssFragmentInfoController(config) {
                 return;
             }
 
-            logger.debug('onFragmentRequest ' + request.url);
+            log('[FragmentInfoController][' + type + '] onFragmentRequest ' + request.url);
 
             // Download the fragment info segment
             sendRequest(request);
         } else {
             // No more fragment in current list
-            logger.debug('bufferFragmentInfo failed');
+            log('[FragmentInfoController][' + type + '] bufferFragmentInfo failed');
         }
     }
 
     function bufferFragmentInfo() {
-        var segmentTime = undefined;
+        var segmentTime;
 
         // Check if running state
         if (!started) {
             return;
         }
 
-        logger.debug('Start buffering process...');
+        log('[FragmentInfoController][' + type + '] Start buffering process...');
 
         // Get next segment time
         segmentTime = _fragmentInfoTime;
 
-        logger.debug('LoadNextFragment for time: ' + segmentTime);
+        log('[FragmentInfoController][' + type + '] loadNextFragment for time: ' + segmentTime);
 
         var representation = getCurrentRepresentation();
         var request = indexHandler.getSegmentRequestForTime(representation, segmentTime);
@@ -300,7 +299,7 @@ function MssFragmentInfoController(config) {
     function delayLoadNextFragmentInfo(delay) {
         var delayMs = Math.round(Math.min(delay * 1000, 2000));
 
-        logger.debug('Check buffer delta = ' + delayMs + ' ms');
+        log('[FragmentInfoController][' + type + '] Check buffer delta = ' + delayMs + ' ms');
 
         clearTimeout(bufferTimeout);
         bufferTimeout = setTimeout(function () {
@@ -319,19 +318,20 @@ function MssFragmentInfoController(config) {
             deltaTimeStamp = undefined;
 
         if (!e.fragmentInfo.response) {
-            logger.error('Load error', request.url);
+            log('[FragmentInfoController][' + type + '] ERROR loading ', request.url);
             return;
         }
 
         segmentDuration = request.duration;
-        logger.debug('FragmentInfo loaded ', request.url);
+        log('[FragmentInfoController][' + type + '] FragmentInfo loaded ', request.url);
         try {
+
             // update segment list
             var mssFragmentMoofProcessor = (0, _MssFragmentMoofProcessor2['default'])(context).create({
                 metricsModel: metricsModel,
                 playbackController: playbackController,
                 ISOBoxer: ISOBoxer,
-                debug: debug
+                log: log
             });
             mssFragmentMoofProcessor.updateSegmentList(e.fragmentInfo, streamProcessor);
 
@@ -340,7 +340,7 @@ function MssFragmentInfoController(config) {
             deltaTime = deltaTimeStamp - deltaDate > 0 ? deltaTimeStamp - deltaDate : 0;
             delayLoadNextFragmentInfo(deltaTime);
         } catch (e) {
-            logger.fatal('Internal error while processing fragment info segment ');
+            log('[FragmentInfoController][' + type + '] ERROR - Internal error while processing fragment info segment ');
         }
     }
 
@@ -352,13 +352,14 @@ function MssFragmentInfoController(config) {
         startFragmentInfoDate = new Date().getTime();
         startTimeStampValue = _fragmentInfoTime;
 
-        logger.debug('startPlayback');
+        log('[FragmentInfoController][' + type + '] startPlayback');
 
         // Start buffering process
         bufferFragmentInfo.call(this);
     }
 
     function doStart() {
+
         var segments = undefined;
 
         if (started === true) {
@@ -368,7 +369,7 @@ function MssFragmentInfoController(config) {
         eventBus.on(_MssEvents2['default'].FRAGMENT_INFO_LOADING_COMPLETED, onFragmentInfoLoadedCompleted, instance);
 
         started = true;
-        logger.debug('Do start');
+        log('[FragmentInfoController][' + type + '] START');
 
         var representation = getCurrentRepresentation();
         segments = representation.segments;
@@ -392,7 +393,7 @@ function MssFragmentInfoController(config) {
         if (!started) {
             return;
         }
-        logger.debug('Do stop');
+        log('[FragmentInfoController][' + type + '] STOP');
 
         eventBus.off(_MssEvents2['default'].FRAGMENT_INFO_LOADING_COMPLETED, onFragmentInfoLoadedCompleted, instance);
 
@@ -404,10 +405,6 @@ function MssFragmentInfoController(config) {
         startTimeStampValue = null;
     }
 
-    function getType() {
-        return type;
-    }
-
     function reset() {
         doStop();
         streamProcessor.unregisterExternalController(instance);
@@ -417,7 +414,6 @@ function MssFragmentInfoController(config) {
         initialize: initialize,
         controllerType: controllerType,
         start: doStart,
-        getType: getType,
         reset: reset
     };
 
@@ -475,17 +471,14 @@ Object.defineProperty(exports, '__esModule', {
 function MssFragmentMoofProcessor(config) {
 
     config = config || {};
-    var instance = undefined,
-        logger = undefined;
+    var instance = undefined;
     var metricsModel = config.metricsModel;
     var playbackController = config.playbackController;
     var errorHandler = config.errHandler;
     var ISOBoxer = config.ISOBoxer;
-    var debug = config.debug;
+    var log = config.log;
 
-    function setup() {
-        logger = debug.getLogger(instance);
-    }
+    function setup() {}
 
     function processTfrf(request, tfrf, tfdt, streamProcessor) {
         var representationController = streamProcessor.getRepresentationController();
@@ -511,6 +504,7 @@ function MssFragmentMoofProcessor(config) {
         var entry = undefined,
             segmentTime = undefined;
         var segment = null;
+        var type = adaptation.contentType;
         var t = 0;
         var availabilityStartTime = null;
         var range = undefined;
@@ -527,6 +521,7 @@ function MssFragmentMoofProcessor(config) {
 
         // Check if we have to append new segment to timeline
         if (entry.fragment_absolute_time <= segmentTime) {
+
             // Update DVR window range
             // => set range end to end time of current segment
             range = {
@@ -538,12 +533,13 @@ function MssFragmentMoofProcessor(config) {
             return;
         }
 
-        logger.debug('Add new segment - t = ', entry.fragment_absolute_time / timescale);
+        log('[MssFragmentMoofProcessor][', type, '] Add new segment - t = ', entry.fragment_absolute_time / timescale);
         segment = {};
         segment.t = entry.fragment_absolute_time;
         segment.d = entry.fragment_duration;
         segments.push(segment);
 
+        //
         if (manifest.timeShiftBufferDepth && manifest.timeShiftBufferDepth > 0) {
             // Get timestamp of the last segment
             segment = segments[segments.length - 1];
@@ -555,7 +551,7 @@ function MssFragmentMoofProcessor(config) {
             // Remove segments prior to availability start time
             segment = segments[0];
             while (segment.t < availabilityStartTime) {
-                logger.debug('Remove segment  - t = ' + segment.t / timescale);
+                log('[MssFragmentMoofProcessor]Remove segment  - t = ' + segment.t / timescale);
                 segments.splice(0, 1);
                 segment = segments[0];
             }
@@ -577,7 +573,7 @@ function MssFragmentMoofProcessor(config) {
         var dvrInfos = metricsModel.getMetricsFor(type).DVRInfo;
         if (dvrInfos) {
             if (dvrInfos.length === 0 || dvrInfos.length > 0 && range.end > dvrInfos[dvrInfos.length - 1].range.end) {
-                logger.debug('Update DVR Infos [' + range.start + ' - ' + range.end + ']');
+                log('[MssFragmentMoofProcessor][', type, '] Update DVR Infos [' + range.start + ' - ' + range.end + ']');
                 metricsModel.addDVRInfo(type, playbackController.getTime(), manifestInfo, range);
             }
         }
@@ -695,6 +691,7 @@ function MssFragmentMoofProcessor(config) {
     }
 
     function updateSegmentList(e, sp) {
+
         // e.request contains request description object
         // e.response contains fragment bytes
         if (!e.response) {
@@ -1536,7 +1533,7 @@ function MssFragmentProcessor(config) {
     var eventBus = config.eventBus;
     var protectionController = config.protectionController;
     var ISOBoxer = config.ISOBoxer;
-    var debug = config.debug;
+    var log = config.log;
     var instance = undefined;
 
     function setup() {
@@ -1547,8 +1544,7 @@ function MssFragmentProcessor(config) {
     }
 
     function generateMoov(rep) {
-        var mssFragmentMoovProcessor = (0, _MssFragmentMoovProcessor2['default'])(context).create({ protectionController: protectionController,
-            constants: config.constants, ISOBoxer: config.ISOBoxer });
+        var mssFragmentMoovProcessor = (0, _MssFragmentMoovProcessor2['default'])(context).create({ protectionController: protectionController, constants: config.constants, ISOBoxer: config.ISOBoxer });
         return mssFragmentMoovProcessor.generateMoov(rep);
     }
 
@@ -1566,7 +1562,7 @@ function MssFragmentProcessor(config) {
                 metricsModel: metricsModel,
                 playbackController: playbackController,
                 ISOBoxer: ISOBoxer,
-                debug: debug,
+                log: log,
                 errHandler: config.errHandler
             });
             mssFragmentMoofProcessor.convertFragment(e, sp);
@@ -1676,7 +1672,7 @@ function MssHandler(config) {
         eventBus: eventBus,
         constants: constants,
         ISOBoxer: config.ISOBoxer,
-        debug: config.debug,
+        log: config.log,
         errHandler: config.errHandler
     });
     var mssParser = undefined;
@@ -1772,7 +1768,7 @@ function MssHandler(config) {
                                 metricsModel: metricsModel,
                                 playbackController: playbackController,
                                 ISOBoxer: config.ISOBoxer,
-                                debug: config.debug
+                                log: config.log
                             });
                             fragmentInfoController.initialize();
                             fragmentInfoController.start();
@@ -1932,7 +1928,7 @@ Object.defineProperty(exports, '__esModule', {
 function MssParser(config) {
     config = config || {};
     var BASE64 = config.BASE64;
-    var debug = config.debug;
+    var log = config.log;
     var constants = config.constants;
 
     var DEFAULT_TIME_SCALE = 10000000.0;
@@ -1968,11 +1964,9 @@ function MssParser(config) {
     };
 
     var instance = undefined,
-        logger = undefined,
         mediaPlayerModel = undefined;
 
     function setup() {
-        logger = debug.getLogger(instance);
         mediaPlayerModel = config.mediaPlayerModel;
     }
 
@@ -1999,9 +1993,10 @@ function MssParser(config) {
     }
 
     function mapAdaptationSet(streamIndex, timescale) {
+
         var adaptationSet = {};
         var representations = [];
-        var segmentTemplate = undefined;
+        var segmentTemplate = {};
         var qualityLevels = undefined,
             representation = undefined,
             segments = undefined,
@@ -2075,9 +2070,10 @@ function MssParser(config) {
     }
 
     function mapRepresentation(qualityLevel, streamIndex) {
+
         var representation = {};
-        var type = streamIndex.getAttribute('Type');
         var fourCCValue = null;
+        var type = streamIndex.getAttribute('Type');
 
         representation.id = qualityLevel.Id;
         representation.bandwidth = parseInt(qualityLevel.getAttribute('Bitrate'), 10);
@@ -2098,7 +2094,7 @@ function MssParser(config) {
             if (type === 'audio') {
                 fourCCValue = 'AAC';
             } else if (type === 'video') {
-                logger.debug('FourCC is not defined whereas it is required for a QualityLevel element for a StreamIndex of type "video"');
+                log('[MssParser] FourCC is not defined whereas it is required for a QualityLevel element for a StreamIndex of type "video"');
                 return null;
             }
         }
@@ -2107,7 +2103,7 @@ function MssParser(config) {
         if (SUPPORTED_CODECS.indexOf(fourCCValue.toUpperCase()) === -1) {
             // Do not send warning
             //this.errHandler.sendWarning(MediaPlayer.dependencies.ErrorHandler.prototype.MEDIA_ERR_CODEC_UNSUPPORTED, 'Codec not supported', {codec: fourCCValue});
-            logger.warn('Codec not supported: ' + fourCCValue);
+            log('[MssParser] Codec not supported: ' + fourCCValue);
             return null;
         }
 
@@ -2144,9 +2140,9 @@ function MssParser(config) {
     }
 
     function getAACCodec(qualityLevel, fourCCValue) {
-        var samplingRate = parseInt(qualityLevel.getAttribute('SamplingRate'), 10);
-        var codecPrivateData = qualityLevel.getAttribute('CodecPrivateData').toString();
         var objectType = 0;
+        var codecPrivateData = qualityLevel.getAttribute('CodecPrivateData').toString();
+        var samplingRate = parseInt(qualityLevel.getAttribute('SamplingRate'), 10);
         var codecPrivateDataHex = undefined,
             arr16 = undefined,
             indexFreq = undefined,
@@ -2205,6 +2201,7 @@ function MssParser(config) {
     }
 
     function mapSegmentTemplate(streamIndex, timescale) {
+
         var segmentTemplate = {};
         var mediaUrl = undefined,
             streamIndexTimeScale = undefined;
@@ -2224,6 +2221,7 @@ function MssParser(config) {
     }
 
     function mapSegmentTimeline(streamIndex, timescale) {
+
         var segmentTimeline = {};
         var chunks = streamIndex.getElementsByTagName('c');
         var segments = [];
@@ -2590,6 +2588,7 @@ function MssParser(config) {
     }
 
     function parseDOM(data) {
+
         var xmlDoc = null;
 
         if (window.DOMParser) {
@@ -2632,7 +2631,7 @@ function MssParser(config) {
 
         var mss2dashTime = window.performance.now();
 
-        logger.info('Parsing complete: (xmlParsing: ' + (xmlParseTime - startTime).toPrecision(3) + 'ms, mss2dash: ' + (mss2dashTime - xmlParseTime).toPrecision(3) + 'ms, total: ' + ((mss2dashTime - startTime) / 1000).toPrecision(3) + 's)');
+        log('Parsing complete: (xmlParsing: ' + (xmlParseTime - startTime).toPrecision(3) + 'ms, mss2dash: ' + (mss2dashTime - xmlParseTime).toPrecision(3) + 'ms, total: ' + ((mss2dashTime - startTime) / 1000).toPrecision(3) + 's)');
 
         return manifest;
     }

@@ -716,14 +716,14 @@ function MetricsController(config) {
             rangeController.initialize(metricsEntry.Range);
 
             reportingController = (0, _ReportingController2['default'])(context).create({
-                debug: config.debug,
+                log: config.log,
                 metricsConstants: config.metricsConstants
             });
 
             reportingController.initialize(metricsEntry.Reporting, rangeController);
 
             metricsHandlersController = (0, _MetricsHandlersController2['default'])(context).create({
-                debug: config.debug,
+                log: config.log,
                 eventBus: config.eventBus,
                 metricsConstants: config.metricsConstants,
                 events: config.events
@@ -818,7 +818,7 @@ function MetricsHandlersController(config) {
     var Events = config.events;
 
     var metricsHandlerFactory = (0, _metricsMetricsHandlerFactory2['default'])(context).getInstance({
-        debug: config.debug,
+        log: config.log,
         eventBus: config.eventBus,
         metricsConstants: config.metricsConstants
     });
@@ -1152,7 +1152,7 @@ function MetricsHandlerFactory(config) {
 
     config = config || {};
     var instance = undefined;
-    var debug = config.debug;
+    var log = config.log;
 
     // group 1: key, [group 3: n [, group 5: type]]
     var keyRegex = /([a-zA-Z]*)(\(([0-9]*)(\,\s*([a-zA-Z]*))?\))?/;
@@ -1184,7 +1184,8 @@ function MetricsHandlerFactory(config) {
             handler.initialize(matches[1], reportingController, matches[3], matches[5]);
         } catch (e) {
             handler = null;
-            debug.error('MetricsHandlerFactory: Could not create handler for type ' + matches[1] + ' with args ' + matches[3] + ', ' + matches[5] + ' (' + e.message + ')');
+
+            log('MetricsHandlerFactory: Could not create handler for type ' + matches[1] + ' with args ' + matches[3] + ', ' + matches[5] + ' (' + e.message + ')');
         }
 
         return handler;
@@ -1681,7 +1682,7 @@ function ReportingFactory(config) {
     };
 
     var context = this.context;
-    var debug = config.debug;
+    var log = config.log;
     var metricsConstants = config.metricsConstants;
 
     var instance = undefined;
@@ -1697,7 +1698,8 @@ function ReportingFactory(config) {
             reporting.initialize(entry, rangeController);
         } catch (e) {
             reporting = null;
-            debug.error('ReportingFactory: could not create Reporting with schemeIdUri ' + entry.schemeIdUri + ' (' + e.message + ')');
+
+            log('ReportingFactory: could not create Reporting with schemeIdUri ' + entry.schemeIdUri + ' (' + e.message + ')');
         }
 
         return reporting;
@@ -2262,6 +2264,7 @@ function ManifestParsing(config) {
                 if (metric.hasOwnProperty('metrics')) {
                     metricEntry.metrics = metric.metrics;
                 } else {
+                    //console.log("Invalid Metrics. metrics must be set. Ignoring.");
                     return;
                 }
 
